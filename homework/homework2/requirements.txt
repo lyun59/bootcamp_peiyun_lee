@@ -1,0 +1,14 @@
+# Core data stack used across the bootcamp
+numpy
+pandas
+python-dotenv
+requests
+yfinance
+beautifulsoup4
+pyarrow
+scikit-learn
+matplotlib
+seaborn
+missingno
+jupyter
+ipykernel
