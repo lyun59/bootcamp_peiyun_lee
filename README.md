@@ -11,3 +11,27 @@
 
 ## Project Folder Rules
 - Keep project files organized and clearly named.
+
+## Data Storage
+
+Each homework that ingests or transforms data follows the same storage convention:
+
+- **`data/raw/`** — unmodified, as-ingested data (e.g. `*.csv` from an API or scrape).
+- **`data/processed/`** — cleaned/transformed outputs (e.g. `*.parquet`, summary files).
+
+### Formats
+- **CSV** — human-readable and portable; used for raw ingest and easy inspection.
+- **Parquet** — columnar binary format; smaller and faster, and preserves dtypes; used for the processed layer. Requires `pyarrow` (or `fastparquet`).
+
+### Environment-driven paths
+Storage paths are read from `.env` so the same code works across machines without edits:
+
+```
+DATA_DIR_RAW=data/raw
+DATA_DIR_PROCESSED=data/processed
+```
+
+The notebook reads them via `os.getenv('DATA_DIR_RAW', 'data/raw')` and `os.getenv('DATA_DIR_PROCESSED', 'data/processed')` (those strings are the fallback defaults). `.env` is git-ignored; `.env.example` is committed as the template.
+
+### IO utilities
+`write_df(df, path)` and `read_df(path)` route by file suffix (`.csv` → CSV, `.parquet`/`.pq` → Parquet), create parent directories as needed, and raise a clear error if the Parquet engine is missing.
