@@ -35,3 +35,13 @@ The notebook reads them via `os.getenv('DATA_DIR_RAW', 'data/raw')` and `os.gete
 
 ### IO utilities
 `write_df(df, path)` and `read_df(path)` route by file suffix (`.csv` → CSV, `.parquet`/`.pq` → Parquet), create parent directories as needed, and raise a clear error if the Parquet engine is missing.
+
+## Data Preprocessing
+
+Cleaning is done with reusable functions in `homework/homework6/src/cleaning.py`:
+
+- **`fill_missing_median(df, columns)`** — impute NaNs with the column median (robust to outliers).
+- **`drop_missing(df, threshold=0.5)`** — drop columns missing more than `threshold` of their values.
+- **`normalize_data(df, columns)`** — min-max scale numeric columns to `[0, 1]`.
+
+Each returns a new DataFrame (never mutates the input), so steps can be chained and the raw data stays available for before/after comparison.
