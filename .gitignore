@@ -1,7 +1,7 @@
 # Ignore local class materials
 class_materials/
-Project Milestones - Stages01-06/
-Readings - Stages00-07/
+Project Milestones/
+Readings/
 /stage00_*.pdf
 
 # Ignore Python cache files
