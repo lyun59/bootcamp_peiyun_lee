@@ -1,0 +1,10 @@
+# Secrets — never commit real keys or tokens
+.env
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS junk
+.DS_Store
