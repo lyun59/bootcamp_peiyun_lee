@@ -36,6 +36,8 @@ black-box price forecast. They care about:
 | Reproducible storage & reload | 05 Data Storage | env-driven IO, `data/raw` + `data/processed` |
 | Clean, model-ready features | 06 Data Preprocessing | `src/cleaning.py`, processed dataset |
 | Documented outlier handling | 07 Outliers & Risk Assumptions | `src/outliers.py`, sensitivity analysis |
+| Understand data patterns & relationships | 08 Exploratory Data Analysis | `src/eda.py`, `notebooks/eda.ipynb` |
+| Model-ready engineered features | 09 Feature Engineering | `src/features.py`, feature table below |
 
 ## Data
 
@@ -51,8 +53,9 @@ Raw and processed data live in separate folders so the as-ingested data is never
 overwritten:
 
 - **`data/raw/`** — unmodified, as-ingested data (`tsm.csv` from the API pull).
-- **`data/processed/`** — transformed outputs (`tsm.parquet` columnar copy, and
-  `tsm_processed.csv` after cleaning + feature engineering).
+- **`data/processed/`** — transformed outputs (`tsm.parquet` columnar copy,
+  `tsm_processed.csv` after cleaning, and `tsm_featured.csv` after feature
+  engineering).
 
 ### Formats
 
@@ -70,3 +73,27 @@ Storage paths are read from `.env` via `src/config.py` (`DATA_DIR_RAW`,
 
 Outlier detection, assumptions, and risks are documented in
 `docs/outliers.md`; the reusable code lives in `src/outliers.py`.
+
+## Features
+
+Two stages contribute features. Stage 06 (`src/cleaning.py`) adds the base
+features and the label; Stage 09 (`src/features.py`) adds the engineered set.
+All are computed on returns or price ratios (not raw levels) because the price
+series trends over the sample.
+
+| Feature | Definition | Why it helps |
+|---------|-----------|--------------|
+| `return_1d` | `close.pct_change(1)` | immediate one-day direction (Stage 06) |
+| `ma_5`, `ma_20` | 5- and 20-day rolling mean of close | local trend level (Stage 06) |
+| `vol_20` | 20-day rolling std of close | volatility regime (Stage 06) |
+| `target` | 1 if next close > close, else 0 | the next-day direction label |
+| `return_5d`, `return_20d` | `close.pct_change(n)` | multi-horizon momentum; short/long can disagree |
+| `close_to_ma_5`, `close_to_ma_20` | `close / rolling_mean − 1` | trend position (above/below own average) |
+| `ma_5_20_spread` | `(ma_5 − ma_20) / ma_20` | short-vs-long trend (crossover) |
+| `volume_ratio_20` | `volume / rolling-mean(volume, 20)` | volume surge on big moves |
+| `intraday_range` | `(high − low) / close` | same-day volatility |
+| `overnight_gap` | `open / prev_close − 1` | overnight news that sets the session |
+
+`target` is the label; the rest are candidate predictors. Each function's
+docstring in `src/features.py` carries the same rationale, so the reasoning
+travels with the code.
