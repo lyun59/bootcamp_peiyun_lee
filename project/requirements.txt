@@ -4,4 +4,8 @@ yfinance
 python-dotenv
 pyarrow
 matplotlib
+seaborn
 scikit-learn
+scipy
+joblib
+flask
